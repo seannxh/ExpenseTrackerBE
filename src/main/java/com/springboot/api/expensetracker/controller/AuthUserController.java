@@ -3,10 +3,12 @@ package com.springboot.api.expensetracker.controller;
 import com.springboot.api.expensetracker.model.UserModel;
 import com.springboot.api.expensetracker.repository.UserRepository;
 import com.springboot.api.expensetracker.security.JwtUtils;
+import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -25,45 +27,58 @@ public class AuthUserController {
     }
 
     @PostMapping("/signup")
-    public String signup(@RequestBody SignupModel request) {
+    public Map<String, String> signup(@RequestBody SignupModel request) {
         Optional<UserModel> existingUser = userRepository.findByEmail(request.getEmail());
 
         if (existingUser.isPresent()) {
-            return "Error: Email is already registered!";
+            return Map.of("error", "Email is already registered!");
         }
 
         UserModel newUser = new UserModel();
         newUser.setEmail(request.getEmail());
         newUser.setName(request.getName());
-        newUser.setPassword(passwordEncoder.encode(request.getPassword())); // hash password
+        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(newUser);
 
-        String token = jwtUtils.generateToken(newUser.getEmail());
-        return "{\"token\": \"" + token + "\"}";
+        return Map.of(
+                "accessToken", jwtUtils.generateToken(newUser.getEmail()),
+                "refreshToken", jwtUtils.generateRefreshToken(newUser.getEmail())
+        );
     }
 
-    @GetMapping("/login")
-    public String login(@RequestBody LoginModel request) {
+    @PostMapping("/login")
+    public Map<String, String> login(@RequestBody LoginModel request) {
         Optional<UserModel> userOptional = userRepository.findByEmail(request.getEmail());
 
-        if (userOptional.isEmpty()) {
-            return "Error: Invalid email or password!";
+        if (userOptional.isEmpty() || !passwordEncoder.matches(request.getPassword(), userOptional.get().getPassword())) {
+            return Map.of("error", "Invalid email or password!");
         }
 
         UserModel user = userOptional.get();
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            return "Error: Invalid email or password!";
-        }
-
-        String token = jwtUtils.generateToken(user.getEmail());
-        return "{\"token\": \"" + token + "\"}";
+        return Map.of(
+                "accessToken", jwtUtils.generateToken(user.getEmail()),
+                "refreshToken", jwtUtils.generateRefreshToken(user.getEmail())
+        );
     }
+    @PostMapping("/refresh")
+    public Map<String, String> refreshToken(@RequestBody Map<String, String> body) {
+        String refreshToken = body.get("refreshToken");
+
+        try {
+            String email = Jwts.parserBuilder()
+                    .setSigningKey(jwtUtils.getKey())
+                    .build()
+                    .parseClaimsJws(refreshToken)
+                    .getBody()
+                    .getSubject();
+
+            return Map.of("accessToken", jwtUtils.generateToken(email));
+        } catch (Exception e) {
+            return Map.of("error", "Invalid or expired refresh token");
+        }
+    }
+
 }
-
-
-
-
-
 
 

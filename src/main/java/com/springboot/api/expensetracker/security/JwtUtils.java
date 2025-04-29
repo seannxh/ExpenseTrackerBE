@@ -28,4 +28,17 @@ public class JwtUtils {
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
+    public String generateRefreshToken(String email) {
+        long now = System.currentTimeMillis();
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date(now))
+                .setExpiration(new Date(now + 7L * 24 * 60 * 60 * 1000)) // 7 days
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+    }
+    public Key getKey() {
+        return key;
+    }
+
 }
