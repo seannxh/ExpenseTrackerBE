@@ -91,13 +91,18 @@ public class AuthUserController {
         }
 
         UserModel user = userOpt.get();
-        user.setName(updateRequest.getName());
-        user.setPassword(updateRequest.getPassword());
-        // Add more fields to update if needed (email, password, etc.)
+
+        if (updateRequest.getName() != null) {
+            user.setName(updateRequest.getName());
+        }
+        if (updateRequest.getPassword() != null && !updateRequest.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(updateRequest.getPassword()));
+        }
         userRepository.save(user);
 
-        return ResponseEntity.ok("User updated");
+        return ResponseEntity.ok(Map.of("message", "User updated successfully"));
     }
+
 
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteUser(Authentication authentication) {
