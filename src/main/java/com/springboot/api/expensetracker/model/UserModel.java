@@ -17,16 +17,13 @@ public class UserModel {
     private int id;
     private String name;
     private String email;
+
     private boolean isOauthUser = false;
     @JsonIgnore
     private String password;
 
     public boolean isOauthUser() {
         return isOauthUser;
-    }
-
-
-    public void setIsOauthUser(boolean b) {
     }
 
     public UserModel(String name, String email, String password, boolean isOauthUser, int id) {
@@ -36,10 +33,12 @@ public class UserModel {
         this.isOauthUser = isOauthUser;
         this.id = id;
     }
-
-    public UserModel() {
-
+    public void setIsOauthUser(boolean isOauthUser) {
+        this.isOauthUser = isOauthUser;
     }
+
+    //Empty UserModel so spring can create manage this for us.
+    public UserModel() {}
 
     @Override
     public String toString() {

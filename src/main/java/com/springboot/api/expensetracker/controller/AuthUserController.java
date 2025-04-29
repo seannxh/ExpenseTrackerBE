@@ -5,6 +5,9 @@ import com.springboot.api.expensetracker.repository.UserRepository;
 import com.springboot.api.expensetracker.security.JwtUtils;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -78,6 +81,37 @@ public class AuthUserController {
             return Map.of("error", "Invalid or expired refresh token");
         }
     }
+    @PutMapping("/update")
+    public ResponseEntity<?> updateUser(@RequestBody UpdateUserModel updateRequest, Authentication authentication) {
+        String email = authentication.getName();
+        Optional<UserModel> userOpt = userRepository.findByEmail(email);
+
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        UserModel user = userOpt.get();
+        user.setName(updateRequest.getName());
+        user.setPassword(updateRequest.getPassword());
+        // Add more fields to update if needed (email, password, etc.)
+        userRepository.save(user);
+
+        return ResponseEntity.ok("User updated");
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteUser(Authentication authentication) {
+        String email = authentication.getName();
+        Optional<UserModel> userOpt = userRepository.findByEmail(email);
+
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        userRepository.delete(userOpt.get());
+        return ResponseEntity.ok("User deleted");
+    }
+
 }
 
 
