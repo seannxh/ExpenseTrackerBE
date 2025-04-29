@@ -31,3 +31,20 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignore Maven target folder
+/target/
+
+# Ignore application secrets
+src/main/resources/application.properties
+
+# Ignore environment files
+.env
+
+# IntelliJ IDEA files
+.idea/
+*.iml
+
+# OS junk files
+.DS_Store
+Thumbs.db
