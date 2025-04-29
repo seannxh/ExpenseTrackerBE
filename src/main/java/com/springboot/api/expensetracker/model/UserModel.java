@@ -17,15 +17,24 @@ public class UserModel {
     private int id;
     private String name;
     private String email;
-
+    private boolean isOauthUser = false;
     @JsonIgnore
     private String password;
 
-    public UserModel(int id, String name, String email, String password) {
-        this.id = id;
+    public boolean isOauthUser() {
+        return isOauthUser;
+    }
+
+
+    public void setIsOauthUser(boolean b) {
+    }
+
+    public UserModel(String name, String email, String password, boolean isOauthUser, int id) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.isOauthUser = isOauthUser;
+        this.id = id;
     }
 
     public UserModel() {
@@ -38,6 +47,7 @@ public class UserModel {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
+                ", isOauthUser=" + isOauthUser +
                 ", password='" + password + '\'' +
                 '}';
     }

@@ -13,26 +13,35 @@ import java.util.Optional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
-    private final JwtUtils jwtUtils;
 
-    public CustomOAuth2UserService(UserRepository userRepository, JwtUtils jwtUtils) {
+    public CustomOAuth2UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.jwtUtils = jwtUtils;
     }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
+        // Get email and name from Google profile
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
 
+        if (email == null) {
+            throw new RuntimeException("Email not found from OAuth2 provider");
+        }
+
+        // Check if user already exists in the database
         Optional<UserModel> userOptional = userRepository.findByEmail(email);
 
         if (userOptional.isEmpty()) {
+            // If not, create a new user
             UserModel newUser = new UserModel();
             newUser.setEmail(email);
             newUser.setName(name);
+            newUser.setIsOauthUser(true);
+            // mark that it's an OAuth user
+
+            // Save new user to the database
             userRepository.save(newUser);
         }
 
