@@ -14,7 +14,7 @@ public class UserModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     private String name;
     private String email;
 
@@ -26,7 +26,7 @@ public class UserModel {
         return isOauthUser;
     }
 
-    public UserModel(String name, String email, String password, boolean isOauthUser, int id) {
+    public UserModel(String name, String email, String password, boolean isOauthUser, Long id) {
         this.name = name;
         this.email = email;
         this.password = password;
