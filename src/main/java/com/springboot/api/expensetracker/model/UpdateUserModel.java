@@ -10,6 +10,7 @@ import lombok.Setter;
 public class UpdateUserModel {
     private String name;
     private String password;
+    private String email;
 
 
 }

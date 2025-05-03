@@ -27,6 +27,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Map<String, String> signup(SignupModel request) {
+        validateSignupInput(request.getName(), request.getEmail(), request.getPassword());
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             return Map.of("error", "Email is already registered!");
         }
@@ -34,6 +35,7 @@ public class AuthServiceImpl implements AuthService {
         UserModel newUser = new UserModel();
         newUser.setEmail(request.getEmail());
         newUser.setName(request.getName());
+        //Hashes passwords
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(newUser);
 
@@ -45,6 +47,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Map<String, String> login(LoginModel request) {
+        //Get users by email
         UserModel user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Invalid email or password"));
 
@@ -75,7 +78,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    //Gets UpdateUserModel injects it
+    //Finds the user by usermodel in user repository by email
+    // if user enter a field that doesnt equal to past or null
+    //it updates the name
     public UserModel updateUser(UpdateUserModel request, String email) {
+        validateSignupInput(request.getName(), request.getEmail(), request.getPassword());
         UserModel user = userRepository.findByEmail(email).orElseThrow();
 
         if (request.getName() != null) {
@@ -98,12 +106,32 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void handleOAuthLogin(String email, String name) {
+        //If user is not in DB save it
         if (userRepository.findByEmail(email).isEmpty()) {
             UserModel user = new UserModel();
             user.setEmail(email);
             user.setName(name);
             user.setIsOauthUser(true);
             userRepository.save(user);
+        }
+    }
+    private void validateSignupInput(String name, String email, String password) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new RuntimeException("Name cannot be empty");
+        }
+
+        if (name.length() < 3) {
+            throw new RuntimeException("Name has to be least 3 characters long");
+        }
+
+        if (email == null || !email.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+            throw new RuntimeException("Invalid email format");
+        }
+
+        if (password == null || password.length() < 6 ||
+                !password.matches(".*\\d.*") || // Must contain a digit
+                !password.matches(".*[A-Z].*")) { // Must contain an uppercase letter
+            throw new RuntimeException("Password must be at least 6 characters and contain a number and an uppercase letter");
         }
     }
 }
