@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class ExpenseServiceImpl implements ExpenseService {
+public class ExpenseServiceImplement implements ExpenseService {
 
     private final ExpenseRepository expenseRepository;
     private final UserRepository userRepository;
 
-    public ExpenseServiceImpl(ExpenseRepository expenseRepository, UserRepository userRepository) {
+    public ExpenseServiceImplement(ExpenseRepository expenseRepository, UserRepository userRepository) {
         this.expenseRepository = expenseRepository;
         this.userRepository = userRepository;
     }
