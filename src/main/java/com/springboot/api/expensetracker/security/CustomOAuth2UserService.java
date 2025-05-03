@@ -23,7 +23,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String name = oAuth2User.getAttribute("name");
 
         if (email == null) {
-            throw new RuntimeException("Email not found from OAuth2 provider");
+            throw new RuntimeException("Email not found from provider");
         }
 
         authService.handleOAuthLogin(email, name);

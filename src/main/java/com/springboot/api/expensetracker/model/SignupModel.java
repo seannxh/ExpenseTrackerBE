@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 public class SignupModel {
     private String email;
-    private String password;
     private String name;
+    private String password;
 
 }

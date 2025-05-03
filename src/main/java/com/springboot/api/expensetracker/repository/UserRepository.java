@@ -1,9 +1,7 @@
 package com.springboot.api.expensetracker.repository;
 
-
 import com.springboot.api.expensetracker.model.UserModel;
 import org.springframework.stereotype.Repository;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
