@@ -1,4 +1,4 @@
-package com.springboot.api.expensetracker.controller;
+package com.springboot.api.expensetracker.model;
 
 public class LoginModel {
     private String email;

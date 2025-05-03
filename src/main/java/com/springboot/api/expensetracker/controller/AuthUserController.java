@@ -1,5 +1,8 @@
 package com.springboot.api.expensetracker.controller;
 
+import com.springboot.api.expensetracker.model.LoginModel;
+import com.springboot.api.expensetracker.model.SignupModel;
+import com.springboot.api.expensetracker.model.UpdateUserModel;
 import com.springboot.api.expensetracker.model.UserModel;
 import com.springboot.api.expensetracker.repository.UserRepository;
 import com.springboot.api.expensetracker.security.JwtUtils;
