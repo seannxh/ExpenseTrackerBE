@@ -1,4 +1,6 @@
 package com.springboot.api.expensetracker.service;
 
-public class ChatAiService {
+public interface ChatAiService {
+    String getAIResponse(String userMessage, String userEmail);
+
 }
