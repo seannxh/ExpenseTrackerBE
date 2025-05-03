@@ -1,58 +1,41 @@
 package com.springboot.api.expensetracker.security;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.springboot.api.expensetracker.model.UserModel;
+import com.springboot.api.expensetracker.service.AuthService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import com.springboot.api.expensetracker.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Optional;
 
 @Component
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtUtils jwtUtils;
-    private final UserRepository userRepository;
-
-    public CustomOAuth2SuccessHandler(JwtUtils jwtUtils, UserRepository userRepository) {
+    private final AuthService authService;
+    //Lazy is initialized there so it doesn't get init when it's not needed.
+    public CustomOAuth2SuccessHandler(JwtUtils jwtUtils, @Lazy AuthService authService) {
         this.jwtUtils = jwtUtils;
-        this.userRepository = userRepository;
+        this.authService = authService;
     }
 
-
+    //Returns the JWT token in body JSON
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication) throws IOException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
 
-        if (email != null) {
-            Optional<UserModel> userOptional = userRepository.findByEmail(email);
-            if (userOptional.isEmpty()) {
-                UserModel newUser = new UserModel();
-                newUser.setEmail(email);
-                newUser.setName(name);
-                newUser.setIsOauthUser(true);
-                userRepository.save(newUser); // <<< Save new user if not exist
-            }
-        }
-
-        // Generate JWT after user is saved or found
+        authService.handleOAuthLogin(email, name);
         String jwtToken = jwtUtils.generateToken(email);
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-
-        String json = "{\"token\": \"" + jwtToken + "\"}";
-        response.getWriter().write(json);
+        response.getWriter().write("{\"token\": \"" + jwtToken + "\"}");
     }
-
 }

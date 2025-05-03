@@ -3,123 +3,50 @@ package com.springboot.api.expensetracker.controller;
 import com.springboot.api.expensetracker.model.LoginModel;
 import com.springboot.api.expensetracker.model.SignupModel;
 import com.springboot.api.expensetracker.model.UpdateUserModel;
-import com.springboot.api.expensetracker.model.UserModel;
-import com.springboot.api.expensetracker.repository.UserRepository;
-import com.springboot.api.expensetracker.security.JwtUtils;
-import io.jsonwebtoken.Jwts;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import com.springboot.api.expensetracker.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthUserController {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtUtils jwtUtils;
+    private final AuthService authService;
 
-    @Autowired
-    public AuthUserController(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtils = jwtUtils;
+    public AuthUserController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/signup")
     public Map<String, String> signup(@RequestBody SignupModel request) {
-        Optional<UserModel> existingUser = userRepository.findByEmail(request.getEmail());
-
-        if (existingUser.isPresent()) {
-            return Map.of("error", "Email is already registered!");
-        }
-
-        UserModel newUser = new UserModel();
-        newUser.setEmail(request.getEmail());
-        newUser.setName(request.getName());
-        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        userRepository.save(newUser);
-
-        return Map.of(
-                "accessToken", jwtUtils.generateToken(newUser.getEmail()),
-                "refreshToken", jwtUtils.generateRefreshToken(newUser.getEmail())
-        );
+        return authService.signup(request);
     }
 
     @PostMapping("/login")
     public Map<String, String> login(@RequestBody LoginModel request) {
-        Optional<UserModel> userOptional = userRepository.findByEmail(request.getEmail());
-
-        if (userOptional.isEmpty() || !passwordEncoder.matches(request.getPassword(), userOptional.get().getPassword())) {
-            return Map.of("error", "Invalid email or password!");
-        }
-
-        UserModel user = userOptional.get();
-
-        return Map.of(
-                "accessToken", jwtUtils.generateToken(user.getEmail()),
-                "refreshToken", jwtUtils.generateRefreshToken(user.getEmail())
-        );
+        return authService.login(request);
     }
+
     @PostMapping("/refresh")
-    public Map<String, String> refreshToken(@RequestBody Map<String, String> body) {
-        String refreshToken = body.get("refreshToken");
-
-        try {
-            String email = Jwts.parserBuilder()
-                    .setSigningKey(jwtUtils.getKey())
-                    .build()
-                    .parseClaimsJws(refreshToken)
-                    .getBody()
-                    .getSubject();
-
-            return Map.of("accessToken", jwtUtils.generateToken(email));
-        } catch (Exception e) {
-            return Map.of("error", "Invalid or expired refresh token");
-        }
+    public Map<String, String> refresh(@RequestBody Map<String, String> body) {
+        return authService.refreshToken(body.get("refreshToken"));
     }
+
     @PutMapping("/update")
-    public ResponseEntity<?> updateUser(@RequestBody UpdateUserModel updateRequest, Authentication authentication) {
-        String email = authentication.getName();
-        Optional<UserModel> userOpt = userRepository.findByEmail(email);
-
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-
-        UserModel user = userOpt.get();
-
-        if (updateRequest.getName() != null) {
-            user.setName(updateRequest.getName());
-        }
-        if (updateRequest.getPassword() != null && !updateRequest.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(updateRequest.getPassword()));
-        }
-        userRepository.save(user);
-
+    public ResponseEntity<?> updateUser(@RequestBody UpdateUserModel request, Authentication auth) {
+        authService.updateUser(request, auth.getName());
         return ResponseEntity.ok(Map.of("message", "User updated successfully"));
     }
 
-
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteUser(Authentication authentication) {
-        String email = authentication.getName();
-        Optional<UserModel> userOpt = userRepository.findByEmail(email);
-
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-
-        userRepository.delete(userOpt.get());
+    public ResponseEntity<?> deleteUser(Authentication auth) {
+        authService.deleteUser(auth.getName());
         return ResponseEntity.ok("User deleted");
     }
-
 }
+
 
 

@@ -4,6 +4,7 @@ import com.springboot.api.expensetracker.model.ExpenseModel;
 import com.springboot.api.expensetracker.model.UserModel;
 import com.springboot.api.expensetracker.repository.ExpenseRepository;
 import com.springboot.api.expensetracker.repository.UserRepository;
+import com.springboot.api.expensetracker.service.ExpenseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,67 +16,64 @@ import java.util.List;
 @RequestMapping("/api/expenses")
 public class ExpenseController {
 
+    private final ExpenseService expenseService;
     private final ExpenseRepository expenseRepository;
     private final UserRepository userRepository;
 
-    public ExpenseController(ExpenseRepository expenseRepository, UserRepository userRepository) {
+    public ExpenseController(ExpenseService expenseService, ExpenseRepository expenseRepository, UserRepository userRepository) {
+        this.expenseService = expenseService;
         this.expenseRepository = expenseRepository;
         this.userRepository = userRepository;
     }
 
-    // GET all expenses for logged-in user
+    //GET
     @GetMapping("/myexpense")
     public ResponseEntity<List<ExpenseModel>> getUserExpenses(Authentication authentication) {
-        String email = authentication.getName();
+        return ResponseEntity.ok(expenseService.getUserExpenses(authentication.getName()));
+    }
+
+    //GET ID for specific expenses.
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getExpenseById(@PathVariable Long id, Authentication auth) {
+        String email = auth.getName();
         UserModel user = userRepository.findByEmail(email).orElseThrow();
-        List<ExpenseModel> expenses = expenseRepository.findByUser(user);
-        return ResponseEntity.ok(expenses);
+
+        ExpenseModel expense = expenseRepository.findById(id)
+                .filter(e -> e.getUser().getId().equals(user.getId()))
+                .orElseThrow(() -> new RuntimeException("Expense not found or unauthorized"));
+
+        return ResponseEntity.ok(expense);
     }
 
 
-    // POST to create a new expense
+    //POST
     @PostMapping("/create")
     public ResponseEntity<ExpenseModel> createExpense(@RequestBody ExpenseModel expense, Authentication authentication) {
-        String email = authentication.getName();
-        UserModel user = userRepository.findByEmail(email).orElseThrow();
-        expense.setUser(user); // attach the current user to the expense
-        return ResponseEntity.status(HttpStatus.CREATED).body(expenseRepository.save(expense));
-
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(expenseService.createExpense(expense, authentication.getName()));
     }
 
+    //PUT
     @PutMapping("/{id}")
     public ResponseEntity<?> updateExpense(@PathVariable Long id, @RequestBody ExpenseModel updatedExpense, Authentication authentication) {
-        String email = authentication.getName();
-        UserModel user = userRepository.findByEmail(email).orElseThrow();
-
-        return expenseRepository.findById(id)
-                .filter(expense -> expense.getUser() != null && expense.getUser().getId().equals(user.getId()))
-                .<ResponseEntity<?>>map(expense -> {
-                    expense.setTitle(updatedExpense.getTitle());
-                    expense.setAmount(updatedExpense.getAmount());
-                    expense.setDate(updatedExpense.getDate());
-                    expenseRepository.save(expense);
-                    return ResponseEntity.ok(expense);
-                })
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Expense not found or not authorized"));
+        updatedExpense.setId(id); // Ensure the ID is set
+        try {
+            ExpenseModel updated = expenseService.updateExpense(updatedExpense, authentication.getName());
+            return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
-
-
+    //DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteExpense(@PathVariable Long id, Authentication authentication) {
-        String email = authentication.getName();
-        UserModel user = userRepository.findByEmail(email).orElseThrow();
-
-        return expenseRepository.findById(id)
-                .filter(expense -> expense.getUser() != null && expense.getUser().getId().equals(user.getId()))
-                .map(expense -> {
-                    expenseRepository.delete(expense);
-                    return ResponseEntity.ok("Expense deleted");
-                })
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Expense not found or not authorized"));
+        try {
+            expenseService.deleteExpense(id, authentication.getName());
+            return ResponseEntity.ok("Expense deleted");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
-
-
 }
+
