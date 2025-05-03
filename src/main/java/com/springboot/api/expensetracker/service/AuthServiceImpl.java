@@ -79,8 +79,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     //Gets UpdateUserModel injects it
-    //Finds the user by usermodel in user repository by email
-    // if user enter a field that doesnt equal to past or null
+    //Finds the user by user model in user repository by email
+    // if user enter a field that doesn't equal to past or null
     //it updates the name
     public UserModel updateUser(UpdateUserModel request, String email) {
         validateSignupInput(request.getName(), request.getEmail(), request.getPassword());
