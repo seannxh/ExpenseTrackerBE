@@ -23,6 +23,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     }
 
     //Returns the JWT token in body JSON
+    //On OAuth2 Authentication success
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
@@ -33,9 +34,11 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
         authService.handleOAuthLogin(email, name);
         String jwtToken = jwtUtils.generateToken(email);
+        String refreshToken = jwtUtils.generateRefreshToken(email);
+
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("{\"token\": \"" + jwtToken + "\"}");
+        response.getWriter().write("{\"token\": \"" + jwtToken + "\", \"refreshToken\": \"" + refreshToken + "\"}");
     }
 }

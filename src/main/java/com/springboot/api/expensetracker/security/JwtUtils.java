@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
+//Generates the JWT keys
 @Component
 public class JwtUtils {
 

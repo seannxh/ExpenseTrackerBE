@@ -1,5 +1,6 @@
 package com.springboot.api.expensetracker.security;
 
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,17 +15,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
-@EnableWebSecurity
+@AllArgsConstructor
+@EnableWebSecurity//Enables spring's web support with spring MVC
 public class SecurityConfig {
 
     private final CustomOAuth2SuccessHandler successHandler;
     private final JwtUtils jwtUtils;
 
-    public SecurityConfig(CustomOAuth2SuccessHandler successHandler, JwtUtils jwtUtils) {
-        this.successHandler = successHandler;
-        this.jwtUtils = jwtUtils;
-    }
-
+    //setting decoder up
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(jwtUtils);
@@ -36,24 +34,29 @@ public class SecurityConfig {
         return NimbusJwtDecoder.withSecretKey(key).build();
     }
 
+    //Password hasher/checker
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
+                        //these url are public
                         .antMatchers("/", "/oauth2/**", "/login/**", "/api/auth/**").permitAll()
+                        //Any other request private
                         .anyRequest().authenticated()
                 )
+                //Oauth2 handler
                 .oauth2Login(oauth2 -> oauth2.successHandler(successHandler))
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                //Only for backend testing purpose
                 .logout(logout -> logout.logoutSuccessUrl("/"))
                 .csrf(csrf -> csrf.disable());
 
         return http.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }
 

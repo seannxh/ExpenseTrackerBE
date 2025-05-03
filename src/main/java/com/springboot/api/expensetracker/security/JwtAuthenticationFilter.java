@@ -35,9 +35,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+        //Cuts off Bearer Token First 7 indexes "Bearer "
+        //To get the raw JWT Token
 
         String token = authHeader.substring(7); // Remove "Bearer " prefix
 
+        //Parse it
+        //Check to verify for a valid JWT
+        //Authenticates the user
+        //Allows Secure End points to be protected without sessions.
         try {
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(jwtUtils.getKey())
