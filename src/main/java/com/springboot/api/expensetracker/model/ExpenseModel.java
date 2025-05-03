@@ -22,6 +22,8 @@ public class ExpenseModel {
     @JoinColumn(name = "user_id", columnDefinition = "BIGINT")
     private UserModel user;
 
+    private String category;
+
     @Override
     public String toString() {
         return "ExpenseModel{" +
