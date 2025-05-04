@@ -1,23 +1,28 @@
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+### Build ###
+/target/
+build/
+*.log
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+### OS junk ###
+.DS_Store
+Thumbs.db
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+### IDE ###
+.idea/
 *.iml
 *.ipr
+*.iws
+.vscode/
+.classpath
+.project
+.settings
+.sts4-cache
+.apt_generated
+.factorypath
+.springBeans
+
+### Maven Wrapper ###
+!.mvn/wrapper/maven-wrapper.jar
 
 ### NetBeans ###
 /nbproject/private/
@@ -25,26 +30,13 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
+
+### STS ###
+!**/src/main/**/target/
+!**/src/test/**/target/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
-.vscode/
-
-# Ignore Maven target folder
-/target/
-
-# Ignore application secrets
-src/main/resources/application.properties
-
-# Ignore environment files
+### Secrets ###
 .env
-
-# IntelliJ IDEA files
-.idea/
-*.iml
-
-# OS junk files
-.DS_Store
-Thumbs.db
+src/main/resources/application.properties
