@@ -28,10 +28,10 @@ jobs:
         run: |
           mkdir deploy
           cp target/expensetracker-0.0.1-SNAPSHOT.jar deploy/application.jar
+          cp Procfile deploy/
           cd deploy
           zip -r ../app.zip .
           cd ..
-
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21
         with:
