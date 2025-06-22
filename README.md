@@ -8,7 +8,7 @@ It includes robust user authentication (JWT + OAuth2), personalized expense trac
 ## 🌐 Live Demo
 
 **Base URL**  
-[http://expensetracker-env.eba-xxxxxxxx.us-east-2.elasticbeanstalk.com](http://expensetracker-env.eba-xxxxxxxx.us-east-2.elasticbeanstalk.com)
+[[http://expensetracker-env.eba-xxxxxxxx.us-east-2.elasticbeanstalk.com](http://expensetracker-env.eba-xxxxxxxx.us-east-2.elasticbeanstalk.com)](http://expensetracker-env.eba-2mpjph9f.us-east-2.elasticbeanstalk.com/)
 
 **Swagger UI (if enabled)**  
 [http://expensetracker-env.eba-xxxxxxxx.us-east-2.elasticbeanstalk.com/swagger-ui/index.html](http://expensetracker-env.eba-xxxxxxxx.us-east-2.elasticbeanstalk.com/swagger-ui/index.html)
