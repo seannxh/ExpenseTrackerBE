@@ -28,6 +28,7 @@ http://expensetracker-env.eba-2mpjph9f.us-east-2.elasticbeanstalk.com/swagger-ui
 - **Maven**
 - **JUnit & Mockito**
 - **Postman**
+- **Github Actions**
 - **Swagger (OpenAPI 3)**
 
 ---
