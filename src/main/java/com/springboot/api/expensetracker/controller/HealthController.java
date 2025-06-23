@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HealthController {
 
     @GetMapping("/")
-    public String home() {
-        return "Backend is running!";
+    public String Home() {
+        return "Welcome to Official Backend for ExpenseTracker";
     }
 }

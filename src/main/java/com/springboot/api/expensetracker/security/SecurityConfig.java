@@ -46,7 +46,15 @@ public class SecurityConfig {
                 .cors().and()
                 .authorizeHttpRequests(auth -> auth
                         //these url are public
-                        .antMatchers("/", "/oauth2/**", "/login/**", "/api/auth/**").permitAll()
+                        .antMatchers(
+                                "/",
+                                "/api/auth/**",     // login/register endpoints
+                                "/swagger-ui/**",   // if using Swagger/OpenAPI
+                                "/v3/api-docs/**",  // OpenAPI docs
+                                "/favicon.ico",     // optional
+                                "/error"            // Spring boot error fallback
+                        ).permitAll()
+
                         //Any other request private
                         .anyRequest().authenticated()
                 )

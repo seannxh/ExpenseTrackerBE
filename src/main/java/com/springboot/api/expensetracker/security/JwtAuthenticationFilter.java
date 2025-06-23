@@ -60,8 +60,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } catch (Exception e) {
-            // Token invalid or expired
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            // Let Spring Security decide whether to allow or deny
+            filterChain.doFilter(request, response);
             return;
         }
 
