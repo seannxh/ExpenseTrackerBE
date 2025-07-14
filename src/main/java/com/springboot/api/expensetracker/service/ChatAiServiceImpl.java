@@ -36,7 +36,10 @@ public class ChatAiServiceImpl implements ChatAiService {
                 .map(e -> e.getTitle() + ": $" + e.getAmount())
                 .collect(Collectors.joining(", "));
 
-        String fullPrompt = userMessage + " Here are my expenses: " + expenseSummary;
+        String fullPrompt = "You are a helpful budgeting assistant. Based on the following user expenses, respond to the question: "
+                + userMessage
+                + ".\n\nExpenses: " + expenseSummary;
+
 
         RestTemplate restTemplate = new RestTemplate();
 
