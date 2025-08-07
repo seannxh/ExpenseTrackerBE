@@ -72,7 +72,7 @@ public class AuthServiceImplement implements AuthService {
                     .getBody()
                     .getSubject();
 
-            return Map.of("accessToken", jwtUtils.generateToken(email));
+            return Map.of("token", jwtUtils.generateToken(email));
         } catch (Exception e) {
             return Map.of("error", "Invalid or expired refresh token");
         }
