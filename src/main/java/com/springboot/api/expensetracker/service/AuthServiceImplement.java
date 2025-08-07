@@ -35,12 +35,13 @@ public class AuthServiceImplement implements AuthService {
         UserModel newUser = new UserModel();
         newUser.setEmail(request.getEmail());
         newUser.setName(request.getName());
+
         //Hashes passwords
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(newUser);
 
         return Map.of(
-                "accessToken", jwtUtils.generateToken(newUser.getEmail()),
+                "token", jwtUtils.generateToken(newUser.getEmail()),
                 "refreshToken", jwtUtils.generateRefreshToken(newUser.getEmail())
         );
     }
@@ -56,7 +57,7 @@ public class AuthServiceImplement implements AuthService {
         }
 
         return Map.of(
-                "accessToken", jwtUtils.generateToken(user.getEmail()),
+                "token", jwtUtils.generateToken(user.getEmail()),
                 "refreshToken", jwtUtils.generateRefreshToken(user.getEmail())
         );
     }

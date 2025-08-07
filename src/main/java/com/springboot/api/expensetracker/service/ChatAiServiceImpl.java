@@ -32,6 +32,7 @@ public class ChatAiServiceImpl implements ChatAiService {
         UserModel user = userRepository.findByEmail(userEmail).orElseThrow();
         List<ExpenseModel> expenses = expenseRepository.findByUser(user);
 
+
         String expenseSummary = expenses.stream()
                 .map(e -> e.getTitle() + ": $" + e.getAmount())
                 .collect(Collectors.joining(", "));
