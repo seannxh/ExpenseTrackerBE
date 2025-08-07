@@ -7,8 +7,10 @@ import com.springboot.api.expensetracker.model.UserModel;
 import com.springboot.api.expensetracker.repository.UserRepository;
 import com.springboot.api.expensetracker.security.JwtUtils;
 import io.jsonwebtoken.Jwts;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
@@ -74,7 +76,7 @@ public class AuthServiceImplement implements AuthService {
 
             return Map.of("token", jwtUtils.generateToken(email));
         } catch (Exception e) {
-            return Map.of("error", "Invalid or expired refresh token");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired refresh token");
         }
     }
 
