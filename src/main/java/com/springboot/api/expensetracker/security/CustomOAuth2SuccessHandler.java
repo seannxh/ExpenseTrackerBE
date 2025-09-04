@@ -16,6 +16,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
     private final JwtUtils jwtUtils;
     private final AuthService authService;
+
     //Lazy is initialized there so it doesn't get init when it's not needed.
     public CustomOAuth2SuccessHandler(JwtUtils jwtUtils, @Lazy AuthService authService) {
         this.jwtUtils = jwtUtils;
@@ -33,12 +34,15 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         String name = oAuth2User.getAttribute("name");
 
         authService.handleOAuthLogin(email, name);
+
         String jwtToken = jwtUtils.generateToken(email);
         String refreshToken = jwtUtils.generateRefreshToken(email);
 
+        // FRONTEND URL: change to your dev UI
+        String redirect = "http://127.0.0.1:3000/oauth2/success"
+                + "#token=" + jwtToken
+                + "&refreshToken=" + refreshToken;
 
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("{\"token\": \"" + jwtToken + "\", \"refreshToken\": \"" + refreshToken + "\"}");
+        response.sendRedirect(redirect);
     }
 }

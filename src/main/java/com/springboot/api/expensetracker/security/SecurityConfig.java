@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -12,7 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -47,11 +50,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // ENABLE CORS at the Security layer
+                // 1) CORS must be enabled on HttpSecurity (not off exceptionHandling)
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
+
+                // 2) Return 401 for /api/** if unauthenticated (prevents 302 to Google on XHR)
+                .exceptionHandling(ex -> ex
+                        .defaultAuthenticationEntryPointFor(
+                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                                new AntPathRequestMatcher("/api/**")
+                        )
+                )
+
+                // 3) AuthZ rules
                 .authorizeHttpRequests(auth -> auth
-                        // let browser preflights through
+                        // let preflights through
                         .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // public endpoints
@@ -68,29 +81,34 @@ public class SecurityConfig {
                         // everything else requires auth
                         .anyRequest().authenticated()
                 )
+
+                // 4) OAuth2 login
                 .oauth2Login(oauth2 -> oauth2.successHandler(successHandler))
+
+                // 5) JWT filter
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+
+                // 6) logout (optional)
                 .logout(logout -> logout.logoutSuccessUrl("/"));
 
         return http.build();
     }
 
-    // CORS used by Spring Security to answer preflights
+    // CORS settings used by Spring Security for preflights
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // cover both localhost variants & any port in dev
+        // Dev: allow both localhost variants on any port
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:*",
                 "http://127.0.0.1:*"
         ));
 
-        // allow everything reasonable for dev so preflights don't 403
         config.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS","HEAD"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("*"));
-        config.setAllowCredentials(true);      // keep if you use cookies / axios withCredentials
+        config.setAllowCredentials(true);  // if you use cookies/withCredentials
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
