@@ -46,7 +46,7 @@ public class ExpenseModel {
                 ", title='" + title + '\'' +
                 ", amount=" + amount +
                 ", date=" + date +
-                ", userId=" + (user != null ? user.getId() : null) +
+                ", userId=" +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';
