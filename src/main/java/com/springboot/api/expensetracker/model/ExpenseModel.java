@@ -5,24 +5,21 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
 @Data
 public class ExpenseModel {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
 
     private String title;
     private Double amount;
 
-    // When the expense actually occurred
-    @Column(name = "date")
-    private LocalDate date;
+    @Temporal(TemporalType.DATE)
+    private Date date;
 
     @ManyToOne
     @JoinColumn(name = "user_id", columnDefinition = "BIGINT")
@@ -30,7 +27,6 @@ public class ExpenseModel {
 
     private String category;
 
-    // Audit fields
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -46,9 +42,8 @@ public class ExpenseModel {
                 ", title='" + title + '\'' +
                 ", amount=" + amount +
                 ", date=" + date +
-                ", userId=" +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
+                ", user=" + user +
                 '}';
     }
 }
+
