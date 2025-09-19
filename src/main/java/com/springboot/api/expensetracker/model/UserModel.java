@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -27,7 +28,10 @@ public class UserModel {
     private boolean isOauthUser = false;
     @JsonIgnore
     private String password;
-    
+
+    @Column(name = "monthly_take_home", precision = 12, scale = 2)
+    private BigDecimal monthlyTakeHome;
+
     @Override
     public String toString() {
         return "UserModel{" +
@@ -36,9 +40,11 @@ public class UserModel {
                 ", email='" + email + '\'' +
                 ", isOauthUser=" + isOauthUser +
                 ", password='" + password + '\'' +
+                ", monthlyTakeHome=" + monthlyTakeHome +
                 '}';
     }
 
     public void setIsOauthUser(boolean b) {
+        this.isOauthUser = b;
     }
 }
