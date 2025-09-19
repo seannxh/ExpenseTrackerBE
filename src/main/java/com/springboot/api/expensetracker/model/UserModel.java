@@ -29,8 +29,6 @@ public class UserModel {
     @JsonIgnore
     private String password;
 
-    @Column(name = "monthly_take_home", precision = 12, scale = 2)
-    private BigDecimal monthlyTakeHome;
 
     @Override
     public String toString() {
@@ -40,7 +38,6 @@ public class UserModel {
                 ", email='" + email + '\'' +
                 ", isOauthUser=" + isOauthUser +
                 ", password='" + password + '\'' +
-                ", monthlyTakeHome=" + monthlyTakeHome +
                 '}';
     }
 
