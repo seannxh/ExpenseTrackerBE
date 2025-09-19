@@ -101,6 +101,7 @@ public class SecurityConfig {
 
         // Dev: allow both localhost variants on any port
         config.setAllowedOriginPatterns(List.of(
+                "http://expensefrontendreal.s3-website-us-east-1.amazonaws.com",
                 "http://localhost:*",
                 "http://127.0.0.1:*"
         ));
