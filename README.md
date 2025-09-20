@@ -19,6 +19,7 @@ http://expensetracker-env.eba-2mpjph9f.us-east-2.elasticbeanstalk.com
 http://expensetracker-env.eba-2mpjph9f.us-east-2.elasticbeanstalk.com/swagger-ui/index.html
 
 **Live Site Hosted on AWS S3**
+
 http://expensefrontendreal.s3-website-us-east-1.amazonaws.com/login
 
 > Use Postman or connect your frontend client to interact with the API endpoints.
@@ -117,6 +118,7 @@ SPRING_DATASOURCE_PASSWORD=your-db-password
 jwt.secret=your-jwt-secret-key
 spring.security.oauth2.client.registration.google.client-id=your-google-client-id
 spring.security.oauth2.client.registration.google.client-secret=your-google-client-secret
+
 
 
 
